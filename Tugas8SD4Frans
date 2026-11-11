@@ -1,0 +1,14 @@
+#include <iostream>
+#include <string>
+using namespace std;
+ 
+const int SIZE = 10;
+ 
+enum Status { EMPTY, OCCUPIED, DELETED };
+ 
+struct Slot {
+    long long nim;   // key
+    string nama;     // value
+    Status status;
+    Slot() : nim(0), nama(""), status(EMPTY) {}
+};
