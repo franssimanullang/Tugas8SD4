@@ -103,6 +103,32 @@ public:
             else
                 cout << "(kosong)";
             cout << "\n";
+int main() {
+    HashTable ht;
+ 
+    // INSERT
+    ht.insert(2301001, "Andi");
+    ht.insert(2301011, "Budi");   // collision dengan Andi (index awal sama)
+    ht.insert(2301021, "Citra");
+    ht.insert(2301005, "Dewi");
+    ht.insert(2301015, "Eka");
+    ht.insert(2301001, "Fajar");  // duplikat
+ 
+    cout << "\n";
+    // SEARCH
+    ht.searchAndPrint(2301011);
+    ht.searchAndPrint(2399999);
+ 
+    cout << "\n";
+    // REMOVE
+    ht.remove(2301001);
+    ht.remove(2388888);
+    ht.searchAndPrint(2301011);   // tetap ketemu berkat tombstone
+ 
+    // TAMPILKAN HASIL AKHIR
+    ht.display();
+    return 0;
+}
         }
     }
 };
