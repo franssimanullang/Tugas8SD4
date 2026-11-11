@@ -12,3 +12,97 @@ struct Slot {
     Status status;
     Slot() : nim(0), nama(""), status(EMPTY) {}
 };
+
+class HashTable {
+private:
+    Slot table[SIZE];
+ 
+    // Hash function pertama: menentukan posisi awal
+    int hash1(long long key) { return key % SIZE; }
+ 
+    // Hash function kedua: menentukan langkah loncatan (tidak boleh 0)
+    int hash2(long long key) { return 7 - (key % 7); }  // hasil 1..7
+ 
+    // Posisi ke-i pada urutan probing
+    int probe(long long key, int i) {
+        return (hash1(key) + i * hash2(key)) % SIZE;
+    }
+ 
+public:
+    bool insert(long long nim, const string& nama) {
+        int firstDeleted = -1;
+        for (int i = 0; i < SIZE; i++) {
+            int idx = probe(nim, i);
+            if (table[idx].status == OCCUPIED && table[idx].nim == nim) {
+                cout << "[GAGAL] NIM " << nim << " sudah ada.\n";
+                return false;
+            }
+            if (table[idx].status == DELETED && firstDeleted == -1)
+                firstDeleted = idx;
+            if (table[idx].status == EMPTY) {
+                if (firstDeleted != -1) idx = firstDeleted;
+                table[idx].nim = nim;
+                table[idx].nama = nama;
+                table[idx].status = OCCUPIED;
+                cout << "[OK] Insert " << nim << " (" << nama << ") di index "
+                     << idx << " (percobaan ke-" << i + 1 << ")\n";
+                return true;
+            }
+        }
+        if (firstDeleted != -1) {
+            table[firstDeleted].nim = nim;
+            table[firstDeleted].nama = nama;
+            table[firstDeleted].status = OCCUPIED;
+            cout << "[OK] Insert " << nim << " (" << nama << ") di index "
+                 << firstDeleted << " (memakai slot bekas hapus)\n";
+            return true;
+        }
+        cout << "[GAGAL] Tabel penuh / tidak ada slot terjangkau untuk NIM "
+             << nim << ".\n";
+        return false;
+    }
+ 
+    int search(long long nim) {
+        for (int i = 0; i < SIZE; i++) {
+            int idx = probe(nim, i);
+            if (table[idx].status == EMPTY) break;  // pasti tidak ada
+            if (table[idx].status == OCCUPIED && table[idx].nim == nim)
+                return idx;
+        }
+        return -1;
+    }
+ 
+    void searchAndPrint(long long nim) {
+        int idx = search(nim);
+        if (idx == -1)
+            cout << "[SEARCH] NIM " << nim << " tidak ditemukan.\n";
+        else
+            cout << "[SEARCH] NIM " << nim << " ditemukan di index " << idx
+                 << ", nama: " << table[idx].nama << "\n";
+    }
+ 
+    bool remove(long long nim) {
+        int idx = search(nim);
+        if (idx == -1) {
+            cout << "[REMOVE] NIM " << nim << " tidak ditemukan.\n";
+            return false;
+        }
+        table[idx].status = DELETED;  // tombstone, bukan EMPTY
+        cout << "[REMOVE] NIM " << nim << " dihapus dari index " << idx << "\n";
+        return true;
+    }
+ 
+    void display() {
+        cout << "\n=== ISI HASH TABLE ===\n";
+        for (int i = 0; i < SIZE; i++) {
+            cout << "[" << i << "] ";
+            if (table[i].status == OCCUPIED)
+                cout << table[i].nim << " - " << table[i].nama;
+            else if (table[i].status == DELETED)
+                cout << "(dihapus)";
+            else
+                cout << "(kosong)";
+            cout << "\n";
+        }
+    }
+};
